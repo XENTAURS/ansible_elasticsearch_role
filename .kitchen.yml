@@ -2,39 +2,35 @@
 #
 ---
 driver:
-  name: docker
+  name: vagrant
 
 provisioner:
   name: ansible_playbook
   hosts: localhost
-  roles_path: ../
   require_ansible_repo: true
   ansible_verbose: true
-  ansible_version: 2.2.0
   http_proxy: <%= ENV['HTTP_PROXY'] %>
   https_proxy: <%= ENV['HTTPS_PROXY'] %>
   no_proxy: localhost,127.0.0.1
-  requirements_path: requirements-test.txt
+  #requirements_path: requirements.yml
+  require_ansible_repo: true
+  ansible_verbose: true
+  ansible_verbosity: 2
+  ansible_diff: true
+  require_chef_for_busser: false
 
 platforms:
-  - name: centos-7
+  - name: centos-7.3
     driver_config:
-      image: dliappis/centos-devopsci:7
-      provision_command:
-        - sed -ri 's/^#?PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
-        - sed -ri 's/^#?PasswordAuthentication .*/PasswordAuthentication yes/' /etc/ssh/sshd_config
-        - sed -ri 's/^#?UsePAM .*/UsePAM no/' /etc/ssh/sshd_config
-        - rm /etc/yum.repos.d/epel*repo /etc/yum.repos.d/puppetlabs-pc1.repo
-        - yum -y install initscripts
-        - yum clean all
-        - pip install jmespath
-      run_command: "/usr/sbin/init"
-      privileged: true
-      use_sudo: false
+      network:
+      - ['forwarded_port', {guest: 9200, host: 9200}]
+
+verifier:
+  name: serverspec
+  sudo_path: true
 
 suites:
   - name: default
-
-# Fix for: https://github.com/neillturner/kitchen-ansible/issues/66
-verifier:
-  ruby_bindir: '/usr/bin'
+    verifier:
+      patterns:
+        - roles/ansible_elasticsearch_role/test/integration/serverspec/*_spec.rb

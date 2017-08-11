@@ -1,11 +1,3 @@
 - hosts: all
-  tasks:
-    - name: Add "registry.yourdomain.local" to "/etc/hosts" for testing of private Docker registry
-      lineinfile:
-        dest=/etc/hosts
-        state=present
-        line="127.0.0.1    registry.yourdomain.local"
-
-- hosts: all
   roles:
     - ansible_elasticsearch_role
