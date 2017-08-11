@@ -1,0 +1,14 @@
+galaxy_info:
+  author: Brian Carpio
+  description: Elasticsearch for Linux.
+  company: "Xentaurs"
+  license: "license (BSD, MIT)"
+  min_ansible_version: 1.8
+  platforms:
+  - name: EL
+    versions:
+    - 7.x
+  galaxy_tags:
+    - web
+    - system
+    - monitoring
