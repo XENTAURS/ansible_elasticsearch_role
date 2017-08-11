@@ -1,0 +1,40 @@
+#
+#
+---
+driver:
+  name: docker
+
+provisioner:
+  name: ansible_playbook
+  hosts: localhost
+  roles_path: ../
+  require_ansible_repo: true
+  ansible_verbose: true
+  ansible_version: 2.2.0
+  http_proxy: <%= ENV['HTTP_PROXY'] %>
+  https_proxy: <%= ENV['HTTPS_PROXY'] %>
+  no_proxy: localhost,127.0.0.1
+  requirements_path: requirements-test.txt
+
+platforms:
+  - name: centos-7
+    driver_config:
+      image: dliappis/centos-devopsci:7
+      provision_command:
+        - sed -ri 's/^#?PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
+        - sed -ri 's/^#?PasswordAuthentication .*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+        - sed -ri 's/^#?UsePAM .*/UsePAM no/' /etc/ssh/sshd_config
+        - rm /etc/yum.repos.d/epel*repo /etc/yum.repos.d/puppetlabs-pc1.repo
+        - yum -y install initscripts
+        - yum clean all
+        - pip install jmespath
+      run_command: "/usr/sbin/init"
+      privileged: true
+      use_sudo: false
+
+suites:
+  - name: default
+
+# Fix for: https://github.com/neillturner/kitchen-ansible/issues/66
+verifier:
+  ruby_bindir: '/usr/bin'
